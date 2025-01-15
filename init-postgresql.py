@@ -122,6 +122,14 @@ parser.add_argument(
     default=False,
     help="output debug trace information",
 )
+parser.add_argument(
+    "-x",
+    "--skipEnginePrime",
+    dest="skipEnginePrime",
+    action="store_true",
+    default=False,
+    help="skip the engine prime_engine to speed up execution"
+)
 args = parser.parse_args()
 
 engine_config = os.getenv("SENZING_ENGINE_CONFIGURATION_JSON")
@@ -143,8 +151,11 @@ factory = senzing_core.SzAbstractFactory(
 
 schema_creation(engine_config)
 add_default_config(factory)
+
 try:
     engine = factory.create_engine()
+    if not args.skipEnginePrime:
+        engine.prime_engine()
     print(factory.create_product().get_version())
     print("Successful Senzing initialization test.")
 except Exception as ex:
