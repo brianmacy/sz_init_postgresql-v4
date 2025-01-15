@@ -1,57 +1,26 @@
-ARG BASE_IMAGE=senzing/senzingapi-runtime:3.10.3
+# docker build -t brian/sz_init_postgresql-v4 .
+# docker run --user $UID -it -e SENZING_ENGINE_CONFIGURATION_JSON brian/sz_init_postgresql-v4
+
+ARG BASE_IMAGE=senzing/senzingsdk-runtime:latest
 FROM ${BASE_IMAGE}
 
-ENV REFRESHED_AT=2024-06-24
-
-LABEL Name="senzing/init-postgresql" \
-  Maintainer="support@senzing.com" \
-  Version="1.1.16"
-
-# Define health check.
-
-HEALTHCHECK CMD ["/app/healthcheck.sh"]
-
-# Run as "root" for system installation.
+LABEL Name="brian/sz_init_postgresql-v4" \
+  Maintainer="brianmacy@gmail.com" \
+  Version="DEV"
 
 USER root
 
-# Install packages via apt.
-
 RUN apt-get update \
-  && apt-get -y install \
-  gnupg2 \
-  libaio1 \
-  libodbc1 \
-  odbc-postgresql \
-  python3 \
-  python3-pip \
-  wget \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get -y install senzingsdk-setup python3-uritools python3-psycopg2 \
+  && apt-get -y autoremove \
+  && apt-get -y clean
 
-# Install packages via PIP.
-
-COPY requirements.txt .
-RUN pip3 install --upgrade pip \
-  && pip3 install -r requirements.txt \
-  && rm /requirements.txt
-
-# Copy files from repository.
-
-COPY ./rootfs /
 COPY ./init-postgresql.py /app/
 
-# Set environment variables.
+ENV LD_LIBRARY_PATH=/opt/senzing/er/lib
+ENV PYTHONPATH=/opt/senzing/er/sdk/python
 
-ENV LD_LIBRARY_PATH=/opt/senzing/g2/lib:/opt/senzing/g2/lib/debian
-ENV PATH=${PATH}:/opt/senzing/g2/python
-ENV PYTHONPATH=/opt/senzing/g2/sdk/python
-ENV SENZING_DOCKER_LAUNCHED=true
-
-# Make non-root container.
-
-USER 1001:1001
-
-# Runtime execution.
+USER 1001
 
 WORKDIR /app
 ENTRYPOINT ["/app/init-postgresql.py"]
