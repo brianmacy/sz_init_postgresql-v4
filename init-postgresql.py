@@ -128,7 +128,7 @@ parser.add_argument(
     dest="skipEnginePrime",
     action="store_true",
     default=False,
-    help="skip the engine prime_engine to speed up execution"
+    help="skip the engine prime_engine to speed up execution",
 )
 args = parser.parse_args()
 
@@ -145,7 +145,7 @@ if not engine_config:
     sys.exit(-1)
 
 # Initialize the G2Engine
-factory = senzing_core.SzAbstractFactory(
+factory = senzing_core.SzAbstractFactoryCore(
     "sz_init_postgresql", engine_config, verbose_logging=args.debugTrace
 )
 
