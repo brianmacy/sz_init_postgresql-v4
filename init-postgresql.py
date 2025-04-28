@@ -19,12 +19,10 @@ def add_default_config(factory):
         print("It appears a configuration is already installed. Skipping.")
         return
 
-    er_config = factory.create_config()
-    default_er_config = er_config.export_config(er_config.create_config())
+    er_config = config_mgr.create_config_from_template()
+    default_er_config = er_config.export()
 
-    config_mgr.set_default_config_id(
-        config_mgr.add_config(default_er_config, "Initial configuration.")
-    )
+    config_mgr.set_default_config(default_er_config, "Initial configuration.")
 
 
 def get_postgresql_url(engine_config):
